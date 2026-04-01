@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rdee29/money-keeper/config"
+	"github.com/rdee29/money-keeper/internal/handler"
 	"github.com/rdee29/money-keeper/internal/model"
 )
 
@@ -18,6 +19,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	r.POST("/register", handler.Register)
 
 	r.Run(":8080")
 }
