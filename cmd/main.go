@@ -3,10 +3,13 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rdee29/money-keeper/config"
+	"github.com/rdee29/money-keeper/internal/model"
 )
 
 func main() {
 	config.ConnectDB()
+
+	config.DB.AutoMigrate(&model.User{})
 
 	r := gin.Default()
 
