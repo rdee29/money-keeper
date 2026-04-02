@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rdee29/money-keeper/config"
 	"github.com/rdee29/money-keeper/internal/model"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterRequest struct {
@@ -25,11 +27,19 @@ func Register (c *gin.Context) {
 		return
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "failed to hashed password",
+		})
+		return
+	}
+
 	user := model.User {
 		ID: uuid.New(),
 		Name: req.Name,
 		Email: req.Email,
-		Password: req.Password,
+		Password: string(hashedPassword),
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
