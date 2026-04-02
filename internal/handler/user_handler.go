@@ -12,12 +12,17 @@ import (
 )
 
 type RegisterRequest struct {
-	Name 		string `json:"name"`
-	Email 		string `json:"email"`
-	Password 	string `json:"password"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-func Register (c *gin.Context) {
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func Register(c *gin.Context) {
 	var req RegisterRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,21 +40,55 @@ func Register (c *gin.Context) {
 		return
 	}
 
-	user := model.User {
-		ID: uuid.New(),
-		Name: req.Name,
-		Email: req.Email,
+	user := model.User{
+		ID:       uuid.New(),
+		Name:     req.Name,
+		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error" : "failed to create user",
+			"error": "failed to create user",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message" : "user successfully created",
+		"message": "user successfully created",
+	})
+}
+
+func Login(c *gin.Context) {
+	var req LoginRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var user model.User
+
+	//find by email
+	if err := config.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
+		c.JSON(401, gin.H{
+			"error": "invalid email or password",
+		})
+		return
+	}
+
+	//compare password
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		c.JSON(401, gin.H{
+			"error": "invalid email or password",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "login success",
 	})
 }
