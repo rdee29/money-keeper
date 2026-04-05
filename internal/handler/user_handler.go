@@ -1,11 +1,13 @@
 package handler
 
 import (
+	// "errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rdee29/money-keeper/config"
+	"github.com/rdee29/money-keeper/internal/middleware"
 	"github.com/rdee29/money-keeper/internal/model"
 
 	"golang.org/x/crypto/bcrypt"
@@ -88,7 +90,16 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	token, err := middleware.GeneratToken(user.ID.String())
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error" : "failed to generate token",
+		})
+		return
+	}
+
 	c.JSON(200, gin.H{
-		"message": "login success",
+		"message" : "login successful",
+		"token" : token,
 	})
 }
