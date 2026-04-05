@@ -5,6 +5,7 @@ import (
 	"github.com/rdee29/money-keeper/config"
 	"github.com/rdee29/money-keeper/internal/handler"
 	"github.com/rdee29/money-keeper/internal/model"
+	"github.com/rdee29/money-keeper/internal/middleware"
 )
 
 func main() {
@@ -22,6 +23,11 @@ func main() {
 
 	r.POST("/register", handler.Register)
 	r.POST("/login", handler.Login)
+	r.GET("/profile", middleware.AuthMiddleware(), func(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "this is your profile (protected route)",
+	})
+})
 
 	r.Run(":8080")
 }
