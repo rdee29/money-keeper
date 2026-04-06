@@ -24,10 +24,13 @@ func main() {
 	r.POST("/register", handler.Register)
 	r.POST("/login", handler.Login)
 	r.GET("/profile", middleware.AuthMiddleware(), func(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "this is your profile (protected route)",
+		userID, _ := c.Get("user_id")
+
+		c.JSON(200, gin.H{
+			"message" : "this is your profile",
+			"user_id" : userID,
+		})
 	})
-})
 
 	r.Run(":8080")
 }
