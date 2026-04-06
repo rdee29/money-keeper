@@ -1,0 +1,50 @@
+package handler
+
+import (
+	// "net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/rdee29/money-keeper/config"
+	"github.com/rdee29/money-keeper/internal/model"
+)
+
+type CreateTransactionRequest struct {
+	Amount      float64 `json:"amount"`
+	Type        string  `json:"type"`
+	Description string  `json:"description"`
+}
+
+func CreateTransaction(c *gin.Context) {
+	var req CreateTransactionRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// get user from token
+	userIDStr, _ := c.Get("user_id")
+	userID, _ := uuid.Parse(userIDStr.(string))
+
+	transaction := model.Transaction{
+		ID:          uuid.New(),
+		UserID:      userID,
+		Amount:      req.Amount,
+		Type:        req.Type,
+		Description: req.Description,
+	}
+
+	if err := config.DB.Create(&transaction).Error; err != nil {
+		c.JSON(500, gin.H{
+			"error": "failed to create transaction",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "transaction created",
+	})
+}
