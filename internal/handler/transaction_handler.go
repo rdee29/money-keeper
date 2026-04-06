@@ -3,6 +3,8 @@ package handler
 import (
 	// "net/http"
 
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rdee29/money-keeper/config"
@@ -29,6 +31,15 @@ func CreateTransaction(c *gin.Context) {
 	userIDStr, _ := c.Get("user_id")
 	userID, _ := uuid.Parse(userIDStr.(string))
 
+	req.Type = strings.TrimSpace(strings.ToLower(req.Type))
+
+	if req.Type != model.TypeExpense && req.Type != model.TypeIncome {
+		c.JSON(400, gin.H{
+			"error" : "type must be either 'income' or 'expense'",
+		})
+		return
+	}
+	
 	transaction := model.Transaction{
 		ID:          uuid.New(),
 		UserID:      userID,
