@@ -22,8 +22,6 @@ func main() {
 		})
 	})
 
-	r.POST("/register", handler.Register)
-	r.POST("/login", handler.Login)
 	r.GET("/profile", middleware.AuthMiddleware(), func(c *gin.Context) {
 		userID, _ := c.Get("user_id")
 
@@ -32,6 +30,10 @@ func main() {
 			"user_id" : userID,
 		})
 	})
+
+	r.POST("/register", handler.Register)
+	r.POST("/login", handler.Login)
+	r.POST("/transactions", middleware.AuthMiddleware(), handler.CreateTransaction)
 
 	r.Run(":8080")
 }
