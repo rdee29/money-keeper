@@ -12,6 +12,7 @@ func main() {
 	config.ConnectDB()
 
 	config.DB.AutoMigrate(&model.User{})
+	config.DB.AutoMigrate(&model.Transaction{})
 
 	r := gin.Default()
 
