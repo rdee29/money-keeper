@@ -12,8 +12,8 @@ import (
 )
 
 type CreateTransactionRequest struct {
-	Amount      float64 `json:"amount"`
-	Type        string  `json:"type"`
+	Amount      float64 `json:"amount" binding:"required"`
+	Type        string  `json:"type" binding:"required"`
 	Description string  `json:"description"`
 }
 

@@ -37,6 +37,5 @@ func main() {
 	r.GET("/transactions", middleware.AuthMiddleware(), handler.GetTransactions)
 	r.GET("/summary", middleware.AuthMiddleware(), handler.GetSummary)
 
-
 	r.Run(":8080")
 }
