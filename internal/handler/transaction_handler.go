@@ -66,7 +66,26 @@ func GetTransactions(c *gin.Context) {
 
 	var transactions []model.Transaction
 
-	if err := config.DB.Where("user_id = ?", userID).Find(&transactions).Error; err != nil {
+	// get query param
+	typeQuery := c.Query("type")
+
+	query := config.DB.Where("user_id = ?", userID)
+
+	// filter type
+	if typeQuery != "" {
+		typeQuery = strings.ToLower(typeQuery)
+
+		if typeQuery != model.TypeIncome && typeQuery != model.TypeExpense {
+			c.JSON(400, gin.H{
+				"error": "invalid type filter",
+			})
+			return
+		}
+
+		query = query.Where("type = ?", typeQuery)
+	}
+
+	if err := query.Find(&transactions).Error; err != nil {
 		c.JSON(500, gin.H{
 			"error": "failed to fetch transactions",
 		})
