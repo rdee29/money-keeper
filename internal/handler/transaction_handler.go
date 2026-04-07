@@ -96,3 +96,31 @@ func GetTransactions(c *gin.Context) {
 		"data": transactions,
 	})
 }
+
+func GetSummary(c *gin.Context) {
+	userIDStr, _ := c.Get("user_id")
+	userID, _ := uuid.Parse(userIDStr.(string))
+
+	var totalIncome float64
+	var totalExpense float64
+
+	// summary of income
+	config.DB.Model(&model.Transaction{}).
+		Where("user_id = ? AND type = ?", userID, model.TypeIncome).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&totalIncome)
+
+	// summary of expense
+	config.DB.Model(&model.Transaction{}).
+		Where("user_id = ? AND type = ?", userID, model.TypeExpense).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&totalExpense)
+
+	balance := totalIncome - totalExpense
+
+	c.JSON(200, gin.H{
+		"total_income":  totalIncome,
+		"total_expense": totalExpense,
+		"balance":       balance,
+	})
+}
