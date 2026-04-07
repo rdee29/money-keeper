@@ -59,3 +59,21 @@ func CreateTransaction(c *gin.Context) {
 		"message": "transaction created",
 	})
 }
+
+func GetTransactions(c *gin.Context) {
+	userIDStr, _ := c.Get("user_id")
+	userID, _ := uuid.Parse(userIDStr.(string))
+
+	var transactions []model.Transaction
+
+	if err := config.DB.Where("user_id = ?", userID).Find(&transactions).Error; err != nil {
+		c.JSON(500, gin.H{
+			"error": "failed to fetch transactions",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"data": transactions,
+	})
+}

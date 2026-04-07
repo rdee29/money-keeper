@@ -34,6 +34,9 @@ func main() {
 	r.POST("/register", handler.Register)
 	r.POST("/login", handler.Login)
 	r.POST("/transactions", middleware.AuthMiddleware(), handler.CreateTransaction)
+	r.GET("/transactions", middleware.AuthMiddleware(), handler.GetTransactions)
 
+
+	
 	r.Run(":8080")
 }
